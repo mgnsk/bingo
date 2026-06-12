@@ -23,29 +23,14 @@ type State = {
   rows: Row[];
 };
 
-// hasEnoughRows checks whether we have enough non-emtpy rows to generate the table.
-function hasEnoughRows(rows: Row[]) {
-  let count = 0;
-
-  rows.forEach((row) => {
-    if (row.text !== "") {
-      count++;
-    }
-  });
-
-  if (count >= 25) {
-    return true;
-  }
-
-  return false;
-}
-
 // generate the bingo cards.
 function generateCards(rows: Row[]): Row[][] {
-  let shuffledRows = [...rows];
-
   // Remove empty rows.
-  shuffledRows = shuffledRows.filter((row) => row.text !== "");
+  const shuffledRows = rows.filter((row) => row.text);
+
+  if (shuffledRows.length < 25) {
+    return [];
+  }
 
   // Shuffle the rows.
   shuffledRows.sort(() => Math.random() - 0.5);
@@ -76,25 +61,13 @@ function App() {
       console.error(err);
     }
 
-    // Attempt 2: load state from JSON URL hash.
-    try {
-      const hashValue = window.location.hash.slice(1); // strip ^#
-      const jsonStr = decodeURIComponent(hashValue);
-      const json = JSON.parse(jsonStr);
-      if (json) {
-        return json;
-      }
-    } catch (err) {
-      console.error(err);
-    }
-
     // Attempt 3: load state from local storage.
     try {
       const localData = localStorage.getItem("state");
       if (localData) {
-        const json = JSON.parse(localData);
-        if (json) {
-          return json;
+        const state = JSON.parse(localData) as State;
+        if (state) {
+          return state;
         }
       }
     } catch (err) {
@@ -173,9 +146,6 @@ function App() {
                   {state.rows.map((value, i) => (
                     <ListGroup.Item className="px-0" key={i}>
                       <InputGroup className="">
-                        <InputGroup.Text id={`input-${i + 1}`}>
-                          @
-                        </InputGroup.Text>
                         <Form.Control
                           placeholder={`${i + 1}`}
                           aria-label={`input-${i + 1}`}
@@ -192,11 +162,7 @@ function App() {
                           }}
                           onChange={(e) => {
                             const newRows = [...state.rows];
-                            // Update the row with new data.
-                            newRows[i] = {
-                              ...newRows[i],
-                              text: e.target.value,
-                            };
+                            newRows[i].text = e.target.value;
                             setState({
                               title: state.title,
                               rows: newRows,
@@ -234,7 +200,7 @@ function App() {
                   }}
                   variant="primary"
                   className="ms-2"
-                  disabled={!hasEnoughRows(state.rows)}
+                  disabled={generateCards(state.rows).length === 0}
                 >
                   Generate
                 </Button>
