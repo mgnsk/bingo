@@ -57,7 +57,7 @@ export function BingoTable({ title, tables }: BingoTableProps) {
                     >
                       <Text
                         style={{
-                          fontSize: 9,
+                          fontSize: 10,
                           textAlign: "center",
                           maxWidth: cellWidth - 8,
                         }}
