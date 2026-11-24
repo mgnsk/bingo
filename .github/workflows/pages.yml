@@ -1,10 +1,10 @@
-# Builds dist/ and deploys it to GitHub Pages (bingo.kokk.eu) on each published
-# release. Can also be run by hand from the Actions tab.
+# Builds dist/ and deploys it to GitHub Pages (bingo.kokk.eu) on each push to
+# main. Can also be run by hand from the Actions tab.
 name: pages
 
 on:
-  release:
-    types: [published]
+  push:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
